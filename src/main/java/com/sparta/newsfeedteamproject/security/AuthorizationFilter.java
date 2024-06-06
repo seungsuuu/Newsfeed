@@ -19,6 +19,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 public class AuthorizationFilter extends OncePerRequestFilter {
@@ -33,12 +34,12 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-        try {
-            String accessTokenValue = jwtProvider.getJwtFromHeader(req, JwtProvider.ACCESS_TOKEN_HEADER);
-            String refreshTokenValue = jwtProvider.getJwtFromHeader(req, JwtProvider.REFRESH_TOKEN_HEADER);
 
-            if (StringUtils.hasText(accessTokenValue)) {
+        String accessTokenValue = jwtProvider.getJwtFromHeader(req, JwtProvider.ACCESS_TOKEN_HEADER);
+        String refreshTokenValue = jwtProvider.getJwtFromHeader(req, JwtProvider.REFRESH_TOKEN_HEADER);
 
+        if (StringUtils.hasText(accessTokenValue)) {
+            try {
                 // JWT 토큰 substring
                 accessTokenValue = jwtProvider.substringToken(accessTokenValue);
                 refreshTokenValue = jwtProvider.substringToken(refreshTokenValue);
@@ -47,15 +48,15 @@ public class AuthorizationFilter extends OncePerRequestFilter {
                 log.info(refreshTokenValue);
 
                 if (!jwtProvider.isTokenValidate(accessTokenValue) && !jwtProvider.isTokenValidate(refreshTokenValue)) {
-                    throw new IllegalArgumentException("유효하지 않은 토큰입니다. 다시 로그인해주세요.");
+                    throw new IllegalArgumentException("유효하지 않은 토큰입니다. 다시 로그인해주세요.1");
                 }
 
                 Claims info = jwtProvider.getUserInfoFromToken(accessTokenValue);
 
                 UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userDetailsService.loadUserByUsername(info.getSubject());
 
-                if (!(refreshTokenValue == userDetailsImpl.getUser().getRefreshToken())) {
-                    throw new IllegalArgumentException("유효하지 않은 토큰입니다. 다시 로그인해주세요.");
+                if (!(Objects.equals(refreshTokenValue, jwtProvider.substringToken((userDetailsImpl.getUser().getRefreshToken()))))) {
+                    throw new IllegalArgumentException("유효하지 않은 토큰입니다. 다시 로그인해주세요.2");
                 }
 
                 //토큰 재생성
@@ -65,11 +66,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
                 setAuthentication(info.getSubject());
 
+            } catch(Exception e){
+                log.error(e.getMessage());
+                FilterExceptionHandler.handleExceptionInFilter(res, e);
+                return;
             }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            FilterExceptionHandler.handleExceptionInFilter(res, e);
-            return;
         }
 
         filterChain.doFilter(req, res);
