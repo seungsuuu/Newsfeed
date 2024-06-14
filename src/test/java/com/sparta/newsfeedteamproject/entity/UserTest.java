@@ -98,6 +98,16 @@ class UserTest {
     @Test
     @DisplayName("User Entity updateRefreshToken() Test")
     void updateRefreshToken() {
+        // given
+        String refreshToken = "asdf1234";
+        user.setRefreshToken(refreshToken);
+        String updateRefreshToken = "qwer5678";
 
+        // when
+        user.updateRefreshToken(updateRefreshToken);
+
+        // then
+        assertEquals(updateRefreshToken, user.getRefreshToken());
+        assertNotEquals(refreshToken, user.getRefreshToken());
     }
 }
