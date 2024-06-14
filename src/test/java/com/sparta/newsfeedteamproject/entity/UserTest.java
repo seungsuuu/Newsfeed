@@ -54,6 +54,32 @@ class UserTest {
     @DisplayName("User Entity deleteRefreshToken() Test")
     void deleteRefreshToken() {
 
+        // given
+        String username = "tmdtn01345";
+        String password = "@Tmdtn01345";
+        String name = "김승수";
+        String email = "snol4331@gmail.com";
+        String userInfo = "안녕하세요";
+        Status status = Status.UNAUTHORIZED;
+        LocalDateTime statusModTime = LocalDateTime.now();
+        String refreshToken = "asdf1234";
+
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setName(name);
+        user.setEmail(email);
+        user.setUserInfo(userInfo);
+        user.setStatus(status);
+        user.setStatusModTime(statusModTime);
+        user.setRefreshToken(refreshToken);
+
+        // when
+        user.deleteRefreshToken();
+
+        // then
+        assertNotNull(user.getRefreshToken());
+        assertNotEquals(refreshToken, user.getRefreshToken());
+        assertEquals("", user.getRefreshToken());
     }
 
     @Test
