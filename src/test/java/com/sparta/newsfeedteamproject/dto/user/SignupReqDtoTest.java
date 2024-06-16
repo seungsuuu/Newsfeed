@@ -66,4 +66,26 @@ class SignupReqDtoTest {
             assertEquals("[username:size] 10자 이상 20자 이하로 작성해주세요!",violation.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("SignupReqDto Validation password Pattern 테스트: 실패")
+    void passwordPatternValidFail() {
+
+        // given
+        SignupReqDto reqDto = new SignupReqDto(
+                "tmdtn01345",
+                "@tmdtn01345",  // 대문자 누락
+                "김승수",
+                "snol4331@gmail.com",
+                "안녕하세요1"
+        );
+
+        // when
+        Set<ConstraintViolation<SignupReqDto>> violations = validator.validate(reqDto);
+
+        // then
+        for (ConstraintViolation<SignupReqDto> violation : violations) {
+            assertEquals("[password:pattern] 숫자, 영문 대소문자, 특수기호를 최소 한개씩 포함하여 작성해주세요!",violation.getMessage());
+        }
+    }
 }
