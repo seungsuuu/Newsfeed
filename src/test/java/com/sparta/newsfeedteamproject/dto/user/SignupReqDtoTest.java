@@ -88,4 +88,26 @@ class SignupReqDtoTest {
             assertEquals("[password:pattern] 숫자, 영문 대소문자, 특수기호를 최소 한개씩 포함하여 작성해주세요!",violation.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("SignupReqDto Validation name NotBlank 테스트: 실패")
+    void nameNotBlankValidFail() {
+
+        // given
+        SignupReqDto reqDto = new SignupReqDto(
+                "tmdtn01345",
+                "@Tmdtn01345",
+                "",   // 입력 X
+                "snol4331@gmail.com",
+                "안녕하세요1"
+        );
+
+        // when
+        Set<ConstraintViolation<SignupReqDto>> violations = validator.validate(reqDto);
+
+        // then
+        for (ConstraintViolation<SignupReqDto> violation : violations) {
+            assertEquals("[name:blank] 사용자 이름을 작성해주세요!",violation.getMessage());
+        }
+    }
 }
