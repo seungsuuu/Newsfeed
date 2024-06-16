@@ -46,7 +46,7 @@ class SignupReqDtoTest {
     }
 
     @Test
-    @DisplayName("SignupReqDto Validation username Size 테스트: 실패")
+    @DisplayName("SignupReqDto Validation username @Size 테스트: 실패")
     void usernameSizeValidFail() {
 
         // given
@@ -68,7 +68,7 @@ class SignupReqDtoTest {
     }
 
     @Test
-    @DisplayName("SignupReqDto Validation password Pattern 테스트: 실패")
+    @DisplayName("SignupReqDto Validation password @Pattern 테스트: 실패")
     void passwordPatternValidFail() {
 
         // given
@@ -90,7 +90,7 @@ class SignupReqDtoTest {
     }
 
     @Test
-    @DisplayName("SignupReqDto Validation name NotBlank 테스트: 실패")
+    @DisplayName("SignupReqDto Validation name @NotBlank 테스트: 실패")
     void nameNotBlankValidFail() {
 
         // given
@@ -108,6 +108,28 @@ class SignupReqDtoTest {
         // then
         for (ConstraintViolation<SignupReqDto> violation : violations) {
             assertEquals("[name:blank] 사용자 이름을 작성해주세요!",violation.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("SignupReqDto Validation email @Email 테스트: 실패")
+    void emailEmailValidFail() {
+
+        // given
+        SignupReqDto reqDto = new SignupReqDto(
+                "tmdtn01345",
+                "@Tmdtn01345",
+                "김승수",
+                "snol4331gmail.com",   // 이메일 형식 X
+                "안녕하세요1"
+        );
+
+        // when
+        Set<ConstraintViolation<SignupReqDto>> violations = validator.validate(reqDto);
+
+        // then
+        for (ConstraintViolation<SignupReqDto> violation : violations) {
+            assertEquals("[email:pattern] 이메일 형식을 맞춰주세요!",violation.getMessage());
         }
     }
 }
