@@ -77,4 +77,26 @@ class CommentServiceIntegrationTest {
         assertEquals(updateContents, comment.getContents());
         this.updateContents = updateContents;
     }
+
+    @Test
+    @Order(3)
+    @DisplayName("댓글 조회(getComment) 테스트")
+    void getCommentTest() {
+
+        // given
+        Long commentId = this.createComment.getId();
+
+        // when
+        MessageResDto<CommentResDto> messageComment = commentService.getComment(feed.getId(), commentId);
+        CommentResDto comment = messageComment.getData();
+
+        // then
+        assertNotNull(comment);
+        assertEquals(this.createComment.getId(), comment.getId());
+        assertEquals(this.createComment.getFeedId(), comment.getFeedId());
+        assertEquals(this.createComment.getUsername(), comment.getUsername());
+
+        // 3. Order(2) 테스트에 의해 contents 내용이 정상적으로 업데이트 되었는지 검증
+        assertEquals(this.updateContents, comment.getContents());
+    }
 }
