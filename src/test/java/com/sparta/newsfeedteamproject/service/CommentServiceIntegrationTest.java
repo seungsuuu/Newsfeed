@@ -55,4 +55,26 @@ class CommentServiceIntegrationTest {
         assertEquals(feed.getId(), comment.getFeedId());
         createComment = comment;
     }
+
+    @Test
+    @Order(2)
+    @DisplayName("댓글 변경(updateComment) 테스트")
+    void updateCommentTest() {
+
+        // given
+        Long commentId = this.createComment.getId();
+        String updateContents = "댓글 수정입니다.";
+        CommentReqDto requestDto = new CommentReqDto(updateContents);
+
+        // when
+        MessageResDto<CommentResDto> messageComment = commentService.updateComment(feed.getId(), commentId, requestDto, user);
+        CommentResDto comment = messageComment.getData();
+
+        // then
+        assertNotNull(comment.getId());
+        assertEquals(this.createComment.getUsername(), comment.getUsername());
+        assertEquals(this.createComment.getFeedId(), comment.getFeedId());
+        assertEquals(updateContents, comment.getContents());
+        this.updateContents = updateContents;
+    }
 }
