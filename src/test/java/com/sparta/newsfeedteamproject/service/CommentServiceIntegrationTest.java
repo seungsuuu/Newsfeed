@@ -1,6 +1,7 @@
 package com.sparta.newsfeedteamproject.service;
 
 import com.sparta.newsfeedteamproject.dto.MessageResDto;
+import com.sparta.newsfeedteamproject.dto.comment.CommentDelResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentResDto;
 import com.sparta.newsfeedteamproject.entity.Feed;
@@ -10,8 +11,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -96,7 +96,30 @@ class CommentServiceIntegrationTest {
         assertEquals(this.createComment.getFeedId(), comment.getFeedId());
         assertEquals(this.createComment.getUsername(), comment.getUsername());
 
-        // 3. Order(2) 테스트에 의해 contents 내용이 정상적으로 업데이트 되었는지 검증
+        // Order(2) 테스트에 의해 contents 내용이 정상적으로 업데이트 되었는지 검증
         assertEquals(this.updateContents, comment.getContents());
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("댓글 삭제(deleteComment) 테스트")
+    void deleteCommentTest() {
+
+        // given
+        Long commentId = this.createComment.getId();
+
+        // when
+        MessageResDto<CommentDelResDto> messageComment = commentService.deleteComment(feed.getId(), commentId, user);
+        CommentDelResDto comment = messageComment.getData();
+
+        // then
+        assertNotNull(comment);
+        assertEquals(this.createComment.getId(), comment.getId());
+
+        // 댓글 검색에 의해 comment 객체가 정상적으로 삭제 되었는지 검증
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> commentService.findComment(comment.getId()));
+        assertEquals("해당 요소가 존재하지 않습니다.", exception.getMessage());
     }
 }
