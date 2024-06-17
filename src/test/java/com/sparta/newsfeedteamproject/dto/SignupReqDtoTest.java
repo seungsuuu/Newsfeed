@@ -1,5 +1,6 @@
-package com.sparta.newsfeedteamproject.dto.user;
+package com.sparta.newsfeedteamproject.dto;
 
+import com.sparta.newsfeedteamproject.dto.user.SignupReqDto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
