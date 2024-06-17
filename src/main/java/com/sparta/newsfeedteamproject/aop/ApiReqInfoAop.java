@@ -2,6 +2,7 @@ package com.sparta.newsfeedteamproject.aop;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -19,11 +20,17 @@ public class ApiReqInfoAop {
     }
 
     @Before("controller()")
-    public void apiLog() {
+    public void apiLog(JoinPoint joinPoint) {
 
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest request = requestAttributes.getRequest();
 
-        log.info("Request URL : " + request.getRequestURI());
-        log.info("HTTP Method : " + request.getMethod());
+        String methodType = request.getMethod();
+        String requestUrl = request.getRequestURI();
+        String methodName = joinPoint.getSignature().getName();
+
+        log.info("HTTP Method : " + methodType);
+        log.info("Request URL : " + requestUrl);
+        log.info("Request Method Name : " + methodName);
     }
 }
