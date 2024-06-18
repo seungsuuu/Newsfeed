@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -103,4 +104,33 @@ class CommentMvcTest {
         action.andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @DisplayName("댓글 수정 요청")
+    void updateCommentTest() throws Exception {
+
+        // given
+        this.mockUserSetup();
+
+        String updateContents = "댓글 수정입니다.";
+        Long feedId = 1L;
+        Long commentId = 1L;
+        CommentReqDto reqDto = Mockito.mock(CommentReqDto.class);
+        when(reqDto.getContents()).thenReturn(updateContents);
+        String commentInfo = objectMapper.writeValueAsString(reqDto);
+
+        // when
+        ResultActions action = mvc.perform(
+                put("/feeds/{feedId}/comments/{commentId}", feedId, commentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(commentInfo)
+                        .principal(mockPrincipal)
+        );
+
+        // then
+        action.andDo(print())
+                .andExpect(status().isOk());
+    }
+
 }
