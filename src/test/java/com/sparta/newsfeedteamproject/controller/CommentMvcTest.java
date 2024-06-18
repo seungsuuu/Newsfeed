@@ -2,7 +2,6 @@ package com.sparta.newsfeedteamproject.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.newsfeedteamproject.config.SecurityConfig;
-import com.sparta.newsfeedteamproject.dto.MessageResDto;
 import com.sparta.newsfeedteamproject.dto.comment.CommentReqDto;
 import com.sparta.newsfeedteamproject.entity.Status;
 import com.sparta.newsfeedteamproject.entity.User;
@@ -12,22 +11,23 @@ import com.sparta.newsfeedteamproject.service.FeedService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
 
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,8 +44,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 class CommentMvcTest {
 
-    private MockMvc mvc;
     private Principal mockPrincipal;
+    @Autowired
+    private MockMvc mvc;
     @Autowired
     private WebApplicationContext context;
     @Autowired
@@ -73,7 +74,7 @@ class CommentMvcTest {
         LocalDateTime statusModTime = LocalDateTime.now();
         User testUser = new User(username, password, name, email, userInfo, status, statusModTime);
         UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
-        mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, "", testUserDetails.getAuthorities());
+        mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, testUserDetails.getPassword(), testUserDetails.getAuthorities());
     }
 
     @Test
@@ -82,22 +83,24 @@ class CommentMvcTest {
 
         // given
         this.mockUserSetup();
-        Long feedId = 1L;
+
         String contents = "댓글 작성입니다.";
-        CommentReqDto reqDto = new CommentReqDto(contents);
+        Long feedId = 1L;
+        CommentReqDto reqDto = Mockito.mock(CommentReqDto.class);
+        when(reqDto.getContents()).thenReturn(contents);
         String commentInfo = objectMapper.writeValueAsString(reqDto);
 
-        given(commentService.createComment(feedId, reqDto, testUser))
-                .willReturn(new MessageResDto<>(HttpStatus.OK.value(), "댓글 작성이 완료되었습니다!", reqDto));
-
-        // when - then
-        mvc.perform(post("/feeds/{feedId}/comments", feedId)
-                        .content(commentInfo)
+        // when
+        ResultActions action = mvc.perform(
+                post("/feeds/{feedId}/comments", feedId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
+                        .content(commentInfo)
                         .principal(mockPrincipal)
-                )
-                .andExpect(status().isOk())
-                .andDo(print());
+        );
+
+        // then
+        action.andDo(print())
+                .andExpect(status().isOk());
     }
 }
