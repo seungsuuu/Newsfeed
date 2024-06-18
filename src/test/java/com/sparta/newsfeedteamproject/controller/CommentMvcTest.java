@@ -29,8 +29,7 @@ import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,6 +126,22 @@ class CommentMvcTest {
                         .content(commentInfo)
                         .principal(mockPrincipal)
         );
+
+        // then
+        action.andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("댓글 조회 요청")
+    void getCommentTest() throws Exception {
+
+        // given
+        Long feedId = 1L;
+        Long commentId = 1L;
+
+        // when
+        ResultActions action = mvc.perform(get("/feeds/{feedId}/comments/{commentId}", feedId, commentId));
 
         // then
         action.andDo(print())
