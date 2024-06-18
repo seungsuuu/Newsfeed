@@ -148,4 +148,22 @@ class CommentMvcTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @DisplayName("댓글 삭제 요청")
+    void deleteCommentTest() throws Exception {
+
+        // given
+        this.mockUserSetup();
+
+        Long feedId = 1L;
+        Long commentId = 1L;
+
+        // when
+        ResultActions action = mvc.perform(
+                delete("/feeds/{feedId}/comments/{commentId}", feedId, commentId).principal(mockPrincipal));
+
+        // then
+        action.andDo(print())
+                .andExpect(status().isOk());
+    }
 }
