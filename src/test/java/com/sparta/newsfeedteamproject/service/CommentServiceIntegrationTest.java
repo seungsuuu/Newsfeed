@@ -8,10 +8,12 @@ import com.sparta.newsfeedteamproject.entity.Feed;
 import com.sparta.newsfeedteamproject.entity.User;
 import com.sparta.newsfeedteamproject.repository.UserRepository;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -40,7 +42,8 @@ class CommentServiceIntegrationTest {
 
         // given
         String contents = "댓글 작성입니다.";
-        CommentReqDto requestDto = new CommentReqDto(contents);
+        CommentReqDto requestDto = Mockito.mock(CommentReqDto.class);
+        when(requestDto.getContents()).thenReturn(contents);
         user = userRepository.findById(1L).orElse(null);
         feed = feedService.findFeed(1L);
 
@@ -64,7 +67,8 @@ class CommentServiceIntegrationTest {
         // given
         Long commentId = this.createComment.getId();
         String updateContents = "댓글 수정입니다.";
-        CommentReqDto requestDto = new CommentReqDto(updateContents);
+        CommentReqDto requestDto = Mockito.mock(CommentReqDto.class);
+        when(requestDto.getContents()).thenReturn(updateContents);
 
         // when
         MessageResDto<CommentResDto> messageComment = commentService.updateComment(feed.getId(), commentId, requestDto, user);
