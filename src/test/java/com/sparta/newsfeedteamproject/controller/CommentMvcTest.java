@@ -27,7 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -45,6 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CommentMvcTest {
 
     private Principal mockPrincipal;
+    User testUser;
     @Autowired
     private MockMvc mvc;
     @Autowired
@@ -72,7 +73,7 @@ class CommentMvcTest {
         String userInfo = "안녕하세요";
         Status status = Status.ACTIVATE;
         LocalDateTime statusModTime = LocalDateTime.now();
-        User testUser = new User(username, password, name, email, userInfo, status, statusModTime);
+        testUser = new User(username, password, name, email, userInfo, status, statusModTime);
         UserDetailsImpl testUserDetails = new UserDetailsImpl(testUser);
         mockPrincipal = new UsernamePasswordAuthenticationToken(testUserDetails, testUserDetails.getPassword(), testUserDetails.getAuthorities());
     }
@@ -102,6 +103,7 @@ class CommentMvcTest {
         // then
         action.andDo(print())
                 .andExpect(status().isOk());
+        verify(commentService, times(1)).createComment(eq(feedId), any(CommentReqDto.class), eq(testUser));
     }
 
     @Test
@@ -130,6 +132,7 @@ class CommentMvcTest {
         // then
         action.andDo(print())
                 .andExpect(status().isOk());
+        verify(commentService, times(1)).updateComment(eq(feedId), eq(commentId), any(CommentReqDto.class), eq(testUser));
     }
 
     @Test
@@ -146,6 +149,7 @@ class CommentMvcTest {
         // then
         action.andDo(print())
                 .andExpect(status().isOk());
+        verify(commentService, times(1)).getComment(eq(feedId), eq(commentId));
     }
 
     @Test
@@ -165,5 +169,6 @@ class CommentMvcTest {
         // then
         action.andDo(print())
                 .andExpect(status().isOk());
+        verify(commentService, times(1)).deleteComment(eq(feedId), eq(commentId), eq(testUser));
     }
 }
